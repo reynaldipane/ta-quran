@@ -82,30 +82,6 @@ def makeDataSet(rangeawal, rangeakhir):
 	return id_data_training,clear_data
 #end of fungsi makeDataSet
 
-def getClearDataTest(rangeawal,rangeakhir):
-	query 	= ("SELECT id, teksayat FROM ta_ayat WHERE id > %s AND id <= %s")
-	cursor_select.execute(query,(rangeawal,rangeakhir))
-
-	id_data_training 	= []
-	data_training		= []
-	rows = cursor_select.fetchall()
-
-	for row in rows:
-		id_data_training.append(row[0])
-		data_training.append(row[1])
-
-	sz_dtTraining 	= len(data_training)
-	clear_data 		= []
-	wordArr 		= []
-	countArr 		= []
-	for i in xrange(0,sz_dtTraining):
-		clear_data.append(preProcessing(data_training[i]))
-		word,countWord = getFeatures(clear_data)
-		wordArr.append(word)
-		countArr.append(countWord)
-	# for i in xrange(0, len(clear_data)):
-
-	return wordArr,countArr
 
 def getClearDataTestById(idx):
 	query 	= ("SELECT id, teksayat FROM ta_ayat WHERE id = %s")
@@ -151,14 +127,6 @@ def getAllKClassList():
 	return temp2
 #end of fungsi getAllKClassList
 
-#fungsi getAllClassList
-def getAllClassList():
-	query 		= ("SELECT DISTINCT level_1, level_2, level_3, level_4, level_5, level_6 FROM ta_kelas")
-	cursor_select.execute(query)
-	countrows 	= cursor_select.rowcount
-	return countrows
-#end of fungsi getAllClassList
-
 #fungsi getDataLikelihood
 def getDataLikelihood(range_awal, range_akhir, level_1,level_2,level_3,level_4,level_5,level_6):
 	query 	= ("SELECT teksayat FROM ta_ayat WHERE id IN (SELECT id_ayat FROM ta_kelas WHERE id_ayat > %s AND id_ayat <= %s AND level_1 = %s AND level_2 = %s AND level_3 = %s AND level_4 = %s AND level_5 = %s AND level_6 = %s)")
@@ -189,85 +157,6 @@ def find(l, elem):
         return row
     return -1
 #end of fungsi find
-
-def countWordFalseLikeLihood(totalfalseword,level_1, level_2, level_3, level_4, level_5, level_6):
-	query 	= ("SELECT word, SUM(count_word) FROM ta_truelikelihood WHERE level_1 <> %s OR level_2 <> %s OR level_3 <> %s OR level_4 <> %s OR level_5 <> %s OR level_6 <> %s GROUP BY word")
-	cursor_select.execute(query,(level_1,level_2,level_3,level_4,level_5,level_6))
-	data_word 				= []
-	data_falselikelihood	= []
-	rows					= cursor_select.fetchall()
-	countrows 				= cursor_select.rowcount
-	for row in rows: 
-		data_word.append(row[0])
-		data_falselikelihood.append(float(row[1])/float(totalfalseword))
-	
-	return data_word, data_falselikelihood
-
-def sumWordFalseLikelihood(level_1, level_2, level_3, level_4, level_5, level_6):
-	query 	= ("SELECT SUM(count_word) FROM ta_truelikelihood WHERE level_1 <> %s OR level_2 <> %s OR level_3 <> %s OR level_4 <> %s OR level_5 <> %s OR level_6 <> %s")
-	cursor_select.execute(query,(level_1,level_2,level_3,level_4,level_5,level_6))
-
-	rows					= cursor_select.fetchall()
-	countrows 				= cursor_select.rowcount
-	for row in rows: 
-		total_count = row[0]
-	
-	return total_count
-
-def countTruePriorProb(level_1, level_2, level_3, level_4, level_5, level_6):
-	priorValue=0
-	query	= ("SELECT prior FROM ta_trueprior WHERE level_1 = %s AND level_2 = %s AND level_3 = %s AND level_4 = %s AND level_5 = %s AND level_6 = %s")
-	cursor_select.execute(query,(level_1, level_2, level_3, level_4, level_5, level_6))
-	rows					= cursor_select.fetchall()
-	countrows 				= cursor_select.rowcount
-	if (countrows > 0):
-				for row in rows:
-					priorValue 	= math.log(row[0])
-	return priorValue
-
-def countFalsePriorProb(level_1, level_2, level_3, level_4, level_5, level_6):
-	priorValue=0
-	query	= ("SELECT prior FROM ta_falseprior WHERE level_1 = %s AND level_2 = %s AND level_3 = %s AND level_4 = %s AND level_5 = %s AND level_6 = %s")
-	cursor_select.execute(query,(level_1, level_2, level_3, level_4, level_5, level_6))
-	rows					= cursor_select.fetchall()
-	countrows 				= cursor_select.rowcount
-	if (countrows > 0):
-				for row in rows:
-					priorValue 	= math.log(row[0])
-	return priorValue
-
-def countTrueLikelihoodProb(wordArray, countArray, level_1, level_2, level_3, level_4, level_5, level_6):
-	prior 					= countTruePriorProb(level_1, level_2, level_3, level_4, level_5, level_6)
-	likelihoodValue			= 0
-	for i in xrange(0,len(wordArray)):
-		for j in xrange(0,len(wordArray[i])):
-			query	= ("SELECT likelihood FROM ta_truelikelihood WHERE word = %s AND level_1 = %s AND level_2 = %s AND level_3 = %s AND level_4 = %s AND level_5 = %s AND level_6 = %s")
-			cursor_select.execute(query,(wordArray[i][j],level_1, level_2, level_3, level_4, level_5, level_6))
-			rows					= cursor_select.fetchall()
-			countrows 				= cursor_select.rowcount
-			if (countrows > 0):
-				for row in rows:
-					likelihoodValue = likelihoodValue + (countArray[i][j] * math.log(row[0]))
-				return likelihoodValue + prior
-			else:
-				return 0
-							
-def countFalseLikelihoodProb(wordArray, countArray, level_1, level_2, level_3, level_4, level_5, level_6):
-	prior 					= countFalsePriorProb(level_1, level_2, level_3, level_4, level_5, level_6)
-	likelihoodValue			= 0
-	for i in xrange(0,len(wordArray)):
-		for j in xrange(0,len(wordArray[i])):
-			query	= ("SELECT likelihood FROM ta_falselikelihood WHERE word = %s AND level_1 = %s AND level_2 = %s AND level_3 = %s AND level_4 = %s AND level_5 = %s AND level_6 = %s")
-			cursor_select.execute(query,(wordArray[i][j],level_1, level_2, level_3, level_4, level_5, level_6))
-			rows					= cursor_select.fetchall()
-			countrows 				= cursor_select.rowcount
-			if (countrows > 0):
-				for row in rows:
-					# print wordArray[i][j] , countArray[i][j]
-					likelihoodValue = likelihoodValue + (countArray[i][j] * math.log(row[0]))
-				return likelihoodValue + prior
-			else:
-				return 0	
 
 def newCountTrueLikelihoodProb(wordArray, countArray):
 	allLikelihoodArr 		= []
@@ -350,7 +239,7 @@ def storeOutput(idList, outputList):
 
 #new_code
 range_awaltest   = 0
-range_akhirtest  = 10
+range_akhirtest  = 1000
 
 id_data,clearDataTest 	= makeDataSet(range_awaltest,range_akhirtest)
 
@@ -378,6 +267,6 @@ for jj in xrange(0,len(id_data)):
 			idArr.append(id_observ)
 			labelArr.append(arrKelas[i])
 
-	print jj
+	print "Iterasi ke - " , jj
 
 storeData = storeOutput(idArr,labelArr)
