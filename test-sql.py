@@ -245,9 +245,10 @@ id_data,clearDataTest 	= makeDataSet(range_awaltest,range_akhirtest)
 
 
 arrKelas  	= getAllKClassList()
-idArr 					= []
-labelArr  				= []
+
 for jj in xrange(0,len(id_data)):
+	idArr 					= []
+	labelArr  				= []
 	id_observ				= id_data[jj]
 	wordArray, countArray 	= getClearDataTestById(id_data[jj])
 	trueLikelihoodArr 		= newCountTrueLikelihoodProb(wordArray,countArray)
@@ -267,6 +268,6 @@ for jj in xrange(0,len(id_data)):
 			idArr.append(id_observ)
 			labelArr.append(arrKelas[i])
 
+	storeData = storeOutput(idArr,labelArr)
 	print "Iterasi ke - " , jj
 
-storeData = storeOutput(idArr,labelArr)
