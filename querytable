@@ -1,0 +1,75 @@
+CREATE TABLE ta_kelas(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	id_ayat INT NOT NULL,
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+    level_6 INT,
+	foreign key fk_kelas(id_ayat) REFERENCES ta_ayat(id)
+)ENGINE=InnoDB;
+
+
+CREATE TABLE ta_truelikelihood(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	word VARCHAR(100),
+	likelihood DECIMAL(18,17),
+	log_likelihood DECIMAL(18,17),
+	count_word INT,
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+	level_6 INT
+)ENGINE=InnoDB;
+
+CREATE TABLE ta_falselikelihood(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	word VARCHAR(100),
+	likelihood DECIMAL(18,17),
+	log_likelihood DECIMAL(18,17),
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+	level_6 INT
+)ENGINE=InnoDB;
+
+CREATE TABLE ta_trueprior(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	prior DECIMAL(18,17),
+	log_prior DECIMAL(18,17),
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+	level_6 INT
+)ENGINE=InnoDB;
+
+CREATE TABLE ta_falseprior(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	prior DECIMAL(18,17),
+	log_prior DECIMAL(18,17),
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+	level_6 INT
+)ENGINE=InnoDB;
+
+CREATE TABLE ta_kelas1(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	id_ayat INT NOT NULL,
+    kelas INT,
+	level_1 INT,
+	level_2 INT,
+	level_3 INT,
+	level_4 INT,
+	level_5 INT,
+	foreign key fk_kelas1(id_ayat) REFERENCES ta_ayat(id)
+)ENGINE=InnoDB;
